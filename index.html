@@ -43,6 +43,24 @@
       100% { transform: translateY(0); }
     }
 
+    @keyframes pop {
+      0% {
+        transform: scale(0.2);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.25);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.1);
+      }
+    }
+
+    .pop {
+      animation: pop 0.6s ease-out forwards;
+    }
+
     /* Shake head animation */
     @keyframes shake {
       0%   { transform: rotate(0deg); }
@@ -120,6 +138,7 @@
   const panda = document.getElementById("panda");
   const loveGif = document.getElementById("loveGif");
   const result = document.getElementById("result");
+  const loveSong = document.getElementById("loveSong");
 
   let noScale = 1;
   let noClicks = 0;
@@ -135,6 +154,27 @@
     "You can’t do this to me 😵‍💫",
     "NO is huge now 😂"
   ];
+
+  function fadeInAudio(audio, duration = 3000) {
+    audio.volume = 0;
+    audio.play();
+
+    const steps = 30;
+    const stepTime = duration / steps;
+    const volumeStep = 1 / steps;
+
+    let currentStep = 0;
+
+    const fade = setInterval(() => {
+      currentStep++;
+      audio.volume = Math.min(currentStep * volumeStep, 1);
+
+      if (currentStep >= steps) {
+        clearInterval(fade);
+      }
+    }, stepTime);
+  }
+
 
   noBtn.addEventListener("click", () => {
     // Increase click count
@@ -163,11 +203,16 @@
     panda.style.display = "none";
     loveGif.style.display = "block";
 
-    loveGif.style.transform = "scale(1.2)";
+    loveGif.classList.add("pop");
     loveGif.style.filter = "drop-shadow(0 0 20px pink)";
+
+    fadeInAudio(loveSong, 3000);
 
     yesBtn.disabled = true;
     noBtn.disabled = true;
+
+    <audio id="loveSong" src="love-song.mp3"></audio>
+
   });
 
 </script>
