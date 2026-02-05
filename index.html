@@ -104,6 +104,7 @@
   </h1>
 
   <img id="panda" src="panda-love.webp" alt="Love Panda" class="gif" />
+  <img id="loveGif" src="love-you.webp" alt="Love You" class="gif" style="display:none;" />
 
   <div class="buttons">
     <button id="yesBtn">Yes</button>
@@ -117,35 +118,58 @@
   const yesBtn = document.getElementById("yesBtn");
   const noBtn = document.getElementById("noBtn");
   const panda = document.getElementById("panda");
+  const loveGif = document.getElementByID("loveGif");
   const result = document.getElementById("result");
 
   let noScale = 1;
   let noClicks = 0;
 
+  const phrases = [
+    "No",
+    "Are you sure? 🙃",
+    "Really sure?? 😳",
+    "Last chance... 🥺",
+    "Ok but like... why 😭",
+    "I’m gonna cry 😢",
+    "Pleaseeeee 💗",
+    "You can’t do this to me 😵‍💫",
+    "NO is huge now 😂"
+  ];
+
   noBtn.addEventListener("click", () => {
+    // Increase click count
     noClicks++;
 
-    // Make NO button bigger
+    // Grow NO button
     noScale *= 1.18;
     noBtn.style.transform = `scale(${noScale})`;
 
+    // Change NO text
+    noBtn.textContent =
+            phrases[Math.min(noClicks, phrases.length - 1)];
+
     // Shake panda head
-    panda.classList.remove("shake"); // reset animation
-    void panda.offsetWidth;          // force reflow
+    panda.classList.remove("shake");
+    void panda.offsetWidth; // force reflow
     panda.classList.add("shake");
 
     result.textContent = "The panda says no 😤🐼";
   });
 
   yesBtn.addEventListener("click", () => {
-    result.textContent = "YAY!! 💘 I knew it!! 🥰";
+    result.textContent = "YAY!! 💘Anh Yêu Em !! 🥰";
 
-    panda.style.transform = "scale(1.2)";
-    panda.style.filter = "drop-shadow(0 0 20px pink)";
+    // Swap gifs
+    panda.style.display = "none";
+    loveGif.style.display = "block";
+
+    loveGif.style.transform = "scale(1.2)";
+    loveGif.style.filter = "drop-shadow(0 0 20px pink)";
 
     yesBtn.disabled = true;
     noBtn.disabled = true;
   });
+
 </script>
 </body>
 </html>
