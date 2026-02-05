@@ -35,6 +35,7 @@
       margin: 18px auto;
       display: block;
       animation: float 2.5s ease-in-out infinite;
+      pointer-events: none; /* ✅ IMPORTANT: don't let image steal clicks */
     }
 
     @keyframes float {
@@ -44,24 +45,13 @@
     }
 
     @keyframes pop {
-      0% {
-        transform: scale(0.2);
-        opacity: 0;
-      }
-      60% {
-        transform: scale(1.25);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1.1);
-      }
+      0% { transform: scale(0.2); opacity: 0; }
+      60% { transform: scale(1.25); opacity: 1; }
+      100% { transform: scale(1.1); }
     }
 
-    .pop {
-      animation: pop 0.6s ease-out forwards;
-    }
+    .pop { animation: pop 0.6s ease-out forwards; }
 
-    /* Shake head animation */
     @keyframes shake {
       0%   { transform: rotate(0deg); }
       15%  { transform: rotate(-10deg); }
@@ -72,9 +62,7 @@
       100% { transform: rotate(0deg); }
     }
 
-    .shake {
-      animation: shake 0.6s ease;
-    }
+    .shake { animation: shake 0.6s ease; }
 
     .buttons {
       display: flex;
@@ -82,6 +70,9 @@
       justify-content: center;
       margin-top: 18px;
       flex-wrap: wrap;
+
+      position: relative;
+      z-index: 2; /* ✅ IMPORTANT: keep buttons on top */
     }
 
     button {
@@ -93,10 +84,7 @@
       transition: transform 120ms ease;
     }
 
-    #yesBtn {
-      background: #ff4d88;
-      color: white;
-    }
+    #yesBtn { background: #ff4d88; color: white; }
 
     #noBtn {
       background: white;
@@ -125,12 +113,14 @@
   <img id="loveGif" src="love-you.webp" alt="Love You" class="gif" style="display:none;" />
 
   <div class="buttons">
-    <button id="yesBtn">Yes</button>
-    <button id="noBtn">No</button>
+    <button id="yesBtn" type="button">Yes</button>
+    <button id="noBtn" type="button">No</button>
   </div>
 
   <div class="result" id="result"></div>
 </div>
+
+<audio id="loveSong" src="love-song.mp3" preload="auto"></audio>
 
 <script>
   const yesBtn = document.getElementById("yesBtn");
@@ -139,6 +129,9 @@
   const loveGif = document.getElementById("loveGif");
   const result = document.getElementById("result");
   const loveSong = document.getElementById("loveSong");
+
+  console.log("JS loaded ✅");
+  result.textContent = "Tap a button 🙂";
 
   let noScale = 1;
   let noClicks = 0;
@@ -155,66 +148,59 @@
     "NO is huge now 😂"
   ];
 
-  function fadeInAudio(audio, duration = 3000) {
+  function fadeInAudio(audio, duration = 3000, targetVolume = 0.7) {
+    if (!audio) return;
+
+    audio.pause();
+    audio.currentTime = 0;
     audio.volume = 0;
-    audio.play();
+
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {});
+    }
 
     const steps = 30;
     const stepTime = duration / steps;
-    const volumeStep = 1 / steps;
-
+    const volumeStep = targetVolume / steps;
     let currentStep = 0;
 
     const fade = setInterval(() => {
       currentStep++;
-      audio.volume = Math.min(currentStep * volumeStep, 1);
-
-      if (currentStep >= steps) {
-        clearInterval(fade);
-      }
+      audio.volume = Math.min(currentStep * volumeStep, targetVolume);
+      if (currentStep >= steps) clearInterval(fade);
     }, stepTime);
   }
 
-
   noBtn.addEventListener("click", () => {
-    // Increase click count
     noClicks++;
 
-    // Grow NO button
     noScale *= 1.18;
     noBtn.style.transform = `scale(${noScale})`;
 
-    // Change NO text
-    noBtn.textContent =
-            phrases[Math.min(noClicks, phrases.length - 1)];
+    noBtn.textContent = phrases[Math.min(noClicks, phrases.length - 1)];
 
-    // Shake panda head
     panda.classList.remove("shake");
-    void panda.offsetWidth; // force reflow
+    void panda.offsetWidth;
     panda.classList.add("shake");
 
     result.textContent = "The panda says no 😤🐼";
   });
 
   yesBtn.addEventListener("click", () => {
-    result.textContent = "YAY!! 💘Anh Yêu Em !! 🥰";
+    result.textContent = "YAY!! 💘 Anh Yêu Em !! 🥰";
 
-    // Swap gifs
     panda.style.display = "none";
     loveGif.style.display = "block";
 
     loveGif.classList.add("pop");
     loveGif.style.filter = "drop-shadow(0 0 20px pink)";
 
-    fadeInAudio(loveSong, 3000);
+    fadeInAudio(loveSong, 3000, 0.7);
 
     yesBtn.disabled = true;
     noBtn.disabled = true;
-
-    <audio id="loveSong" src="love-song.mp3"></audio>
-
   });
-
 </script>
 </body>
 </html>
